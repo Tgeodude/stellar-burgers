@@ -16,7 +16,8 @@ export const RegisterUI: FC<RegisterUIProps> = ({
   password,
   setPassword,
   userName,
-  setUserName
+  setUserName,
+  ...rest
 }) => (
   <main className={styles.container}>
     <div className={`pt-6 ${styles.wrapCenter}`}>
@@ -37,6 +38,9 @@ export const RegisterUI: FC<RegisterUIProps> = ({
               error={false}
               errorText=''
               size='default'
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}
+              {...rest}
             />
           </div>
           <div className='pb-6'>
@@ -49,6 +53,9 @@ export const RegisterUI: FC<RegisterUIProps> = ({
               error={false}
               errorText=''
               size={'default'}
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}
+              {...rest}
             />
           </div>
           <div className='pb-6'>

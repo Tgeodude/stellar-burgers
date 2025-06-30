@@ -14,7 +14,8 @@ export const LoginUI: FC<LoginUIProps> = ({
   errorText,
   handleSubmit,
   password,
-  setPassword
+  setPassword,
+  ...rest
 }) => (
   <main className={styles.container}>
     <div className={`pt-6 ${styles.wrapCenter}`}>
@@ -35,6 +36,9 @@ export const LoginUI: FC<LoginUIProps> = ({
               error={false}
               errorText=''
               size='default'
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}
+              {...rest}
             />
           </div>
           <div className='pb-6'>

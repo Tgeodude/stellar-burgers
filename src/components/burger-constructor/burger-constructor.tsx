@@ -1,45 +1,71 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
+import { useSelector, useDispatch } from '../../services/store';
+import {
+  addIngredient,
+  removeIngredient,
+  moveIngredient,
+  clearConstructor
+} from '../../services/constructor-slice';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { sendOrder } from '../../services/order-slice';
+import { RootState } from '../../services/store';
+import { clearOrder } from '../../services/order-slice';
+import { useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
-  const constructorItems = {
-    bun: {
-      price: 0
-    },
-    ingredients: []
-  };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { bun, ingredients } = useSelector((state) => state.burgerConstructor);
+  const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
+  const { loading: orderRequest, order: orderModalData } = useSelector(
+    (state: RootState) => state.order
+  );
+  const isAuth = useSelector((state) => state.user.isAuth);
 
-  const orderRequest = false;
-
-  const orderModalData = null;
-
-  const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
-  };
-  const closeOrderModal = () => {};
-
+  // Подсчёт стоимости
   const price = useMemo(
     () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
+      (bun ? bun.price * 2 : 0) +
+      safeIngredients.reduce(
         (s: number, v: TConstructorIngredient) => s + v.price,
         0
       ),
-    [constructorItems]
+    [bun, safeIngredients]
   );
 
-  return null;
+  // Обработчики (заглушки, будут подключены к UI)
+  const onOrderClick = () => {
+    if (!bun || orderRequest) return;
+    if (!isAuth) {
+      navigate('/login');
+      return;
+    }
+    // Собираем массив id: сначала булка, потом все ингредиенты, потом булка снова
+    const ingredientIds = [
+      bun._id,
+      ...safeIngredients.map((item) => item._id),
+      bun._id
+    ];
+    dispatch(sendOrder(ingredientIds));
+  };
+  const closeOrderModal = () => {
+    dispatch(clearOrder());
+    dispatch(clearConstructor());
+  };
 
   return (
-    <BurgerConstructorUI
-      price={price}
-      orderRequest={orderRequest}
-      constructorItems={constructorItems}
-      orderModalData={orderModalData}
-      onOrderClick={onOrderClick}
-      closeOrderModal={closeOrderModal}
-    />
+    <DndProvider backend={HTML5Backend}>
+      <BurgerConstructorUI
+        price={price}
+        orderRequest={orderRequest}
+        constructorItems={{ bun, ingredients: safeIngredients }}
+        orderModalData={orderModalData}
+        onOrderClick={onOrderClick}
+        closeOrderModal={closeOrderModal}
+      />
+    </DndProvider>
   );
 };

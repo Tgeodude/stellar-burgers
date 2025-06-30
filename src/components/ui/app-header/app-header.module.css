@@ -35,3 +35,24 @@
   align-items: center;
   margin: 0 auto;
 }
+
+.menuLink,
+.activeMenuLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  height: 40px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menuLink {
+  color: var(--text-inactive-color);
+}
+
+.activeMenuLink {
+  color: var(--text-primary-color);
+  background: #1c1c21;
+}
