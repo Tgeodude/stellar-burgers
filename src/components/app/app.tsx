@@ -1,7 +1,7 @@
 import { ConstructorPage } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { AppHeader } from '@components';
+import { AppHeader } from '../app-header/app-header';
 import React, { Suspense, useEffect } from 'react';
 import {
   Routes,
@@ -13,6 +13,8 @@ import {
 import { useSelector, useDispatch } from '../../services/store';
 import { RootState } from '../../services/store';
 import { getUser } from '../../services/user-slice';
+import { fetchIngredients } from '../../services/ingredients-slice';
+import { setAuthChecked } from '../../services/user-slice';
 // Импорт страниц
 import { Feed } from '../../pages/feed/feed';
 import { Login } from '../../pages/login/login';
@@ -27,10 +29,24 @@ import { Modal } from '../modal/modal';
 import { OrderInfo } from '../order-info/order-info';
 import { IngredientDetails } from '../ingredient-details/ingredient-details';
 import { IngredientModal } from '../ingredient-details/ingredient-modal';
+import { Preloader } from '../ui/preloader';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const isAuth = useSelector((state: RootState) => state.user.isAuth);
+  const loading = useSelector((state: RootState) => state.user.loading);
+  const isAuthChecked = useSelector(
+    (state: RootState) => state.user.isAuthChecked
+  );
   const location = useLocation();
+
+  if (!isAuthChecked) {
+    return <Preloader />;
+  }
+
+  if (loading) {
+    return <Preloader />;
+  }
+
   return isAuth ? (
     children
   ) : (
@@ -46,16 +62,24 @@ function GuestRoute({ children }: { children: JSX.Element }) {
 const App = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAuth = useSelector((state: RootState) => state.user.isAuth);
+  const userName = useSelector((state: RootState) => state.user.user?.name);
+  const background = location.state && location.state.background;
+
   useEffect(() => {
     if (localStorage.getItem('refreshToken')) {
       dispatch(getUser());
+    } else {
+      dispatch(setAuthChecked());
     }
+    dispatch(fetchIngredients());
   }, [dispatch]);
   return (
     <div className={styles.app}>
-      <AppHeader />
+      <AppHeader isAuth={isAuth} userName={userName} />
       <Suspense fallback={<div>Загрузка...</div>}>
-        <Routes>
+        <Routes location={background || location}>
           <Route path='/' element={<ConstructorPage />} />
           <Route path='/feed' element={<Feed />} />
           <Route
@@ -106,27 +130,48 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path='/feed/:number'
-            element={
-              <Modal title='' onClose={() => navigate(-1)}>
-                <OrderInfo />
-              </Modal>
-            }
-          />
-          <Route path='/ingredients/:id' element={<IngredientModal />} />
+          <Route path='/ingredients/:id' element={<IngredientDetails />} />
+          <Route path='/feed/:number' element={<OrderInfo />} />
           <Route
             path='/profile/orders/:number'
             element={
               <ProtectedRoute>
-                <Modal title='' onClose={() => navigate(-1)}>
-                  <OrderInfo />
-                </Modal>
+                <OrderInfo />
               </ProtectedRoute>
             }
           />
           <Route path='*' element={<NotFound404 />} />
         </Routes>
+        {background && (
+          <Routes>
+            <Route
+              path='/ingredients/:id'
+              element={
+                <Modal title='Детали ингредиента' onClose={() => navigate(-1)}>
+                  <IngredientDetails />
+                </Modal>
+              }
+            />
+            <Route
+              path='/feed/:number'
+              element={
+                <Modal title='' onClose={() => navigate(-1)}>
+                  <OrderInfo />
+                </Modal>
+              }
+            />
+            <Route
+              path='/profile/orders/:number'
+              element={
+                <ProtectedRoute>
+                  <Modal title='' onClose={() => navigate(-1)}>
+                    <OrderInfo />
+                  </Modal>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        )}
       </Suspense>
     </div>
   );

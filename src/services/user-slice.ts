@@ -15,13 +15,15 @@ export type UserState = {
   loading: boolean;
   error: string | null;
   isAuth: boolean;
+  isAuthChecked: boolean;
 };
 
 const initialState: UserState = {
   user: null,
   loading: false,
   error: null,
-  isAuth: false
+  isAuth: false,
+  isAuthChecked: false
 };
 
 export const login = createAsyncThunk<TUser, TLoginData>(
@@ -99,7 +101,11 @@ export const logout = createAsyncThunk<void, void>(
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    setAuthChecked: (state) => {
+      state.isAuthChecked = true;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
@@ -110,11 +116,13 @@ const userSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuth = true;
+        state.isAuthChecked = true;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.isAuth = false;
+        state.isAuthChecked = true;
       })
       .addCase(register.pending, (state) => {
         state.loading = true;
@@ -124,11 +132,13 @@ const userSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuth = true;
+        state.isAuthChecked = true;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.isAuth = false;
+        state.isAuthChecked = true;
       })
       .addCase(getUser.pending, (state) => {
         state.loading = true;
@@ -138,11 +148,13 @@ const userSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuth = true;
+        state.isAuthChecked = true;
       })
       .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.isAuth = false;
+        state.isAuthChecked = true;
       })
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
@@ -164,6 +176,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.isAuth = false;
+        state.isAuthChecked = true;
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
@@ -171,5 +184,7 @@ const userSlice = createSlice({
       });
   }
 });
+
+export const { setAuthChecked } = userSlice.actions;
 
 export default userSlice.reducer;

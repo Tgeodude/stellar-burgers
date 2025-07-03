@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, FC } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useSelector, useDispatch } from '../../services/store';
-import { fetchIngredients } from '../../services/ingredients-slice';
 import { addIngredient } from '../../services/constructor-slice';
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
@@ -13,10 +12,6 @@ export const BurgerIngredients: FC = () => {
     loading,
     error
   } = useSelector((state) => state.ingredients);
-
-  useEffect(() => {
-    dispatch(fetchIngredients());
-  }, [dispatch]);
 
   // Фильтрация ингредиентов по типу
   const buns = allIngredients.filter((item: any) => item.type === 'bun');

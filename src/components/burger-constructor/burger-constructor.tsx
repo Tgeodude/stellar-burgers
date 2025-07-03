@@ -13,11 +13,12 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { sendOrder } from '../../services/order-slice';
 import { RootState } from '../../services/store';
 import { clearOrder } from '../../services/order-slice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { bun, ingredients } = useSelector((state) => state.burgerConstructor);
   const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
   const { loading: orderRequest, order: orderModalData } = useSelector(
@@ -40,7 +41,7 @@ export const BurgerConstructor: FC = () => {
   const onOrderClick = () => {
     if (!bun || orderRequest) return;
     if (!isAuth) {
-      navigate('/login');
+      navigate('/login', { state: { from: location } });
       return;
     }
     // Собираем массив id: сначала булка, потом все ингредиенты, потом булка снова

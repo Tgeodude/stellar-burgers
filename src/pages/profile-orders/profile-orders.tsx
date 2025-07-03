@@ -16,11 +16,7 @@ export const ProfileOrders: FC = () => {
 
   useEffect(() => {
     dispatch(fetchProfileOrders());
-    // Загружаем ингредиенты, если их нет
-    if (ingredients.length === 0) {
-      dispatch(fetchIngredients());
-    }
-  }, [dispatch, ingredients.length]);
+  }, [dispatch]);
 
   if (loading) return <div>Загрузка заказов...</div>;
 

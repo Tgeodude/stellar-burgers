@@ -9,7 +9,12 @@ import {
 } from '@zlden/react-developer-burger-ui-components';
 import { NavLink, useLocation } from 'react-router-dom';
 
-export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => {
+type AppHeaderUIPropsWithAuth = TAppHeaderUIProps & { isAuth: boolean };
+
+export const AppHeaderUI: FC<AppHeaderUIPropsWithAuth> = ({
+  userName,
+  isAuth
+}) => {
   const location = useLocation();
   return (
     <header className={styles.header}>
@@ -41,7 +46,7 @@ export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => {
         </div>
         <div className={styles.link_position_last}>
           <NavLink
-            to='/profile'
+            to={isAuth ? '/profile' : '/login'}
             className={() =>
               [
                 '/profile',
