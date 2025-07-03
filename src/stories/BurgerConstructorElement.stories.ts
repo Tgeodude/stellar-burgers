@@ -19,8 +19,8 @@ type Story = StoryObj<typeof meta>;
 export const DefaultElement: Story = {
   args: {
     ingredient: {
-      _id: '111',
-      id: '222',
+      _id: '1',
+      uuid: 'uuid-1',
       name: 'Булка',
       type: 'top',
       proteins: 12,
